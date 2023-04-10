@@ -29,12 +29,17 @@ public class ReportServiceImpl implements ReportService {
 	public List<CitizenPlan> search(SearchRequest r) {
 		System.out.println(r);
 		CitizenPlan citizen = new CitizenPlan();
-		if(null != r.getPlanName() && ! "".equals(r.getPlanName()))
+		
+		if (!"".equals(r.getPlanName()))
 			citizen.setPlanName(r.getPlanName());
-		if(null != r.getPlanStatus() && ! "".equals(r.getPlanStatus()))
+		if (!"".equals(r.getPlanStatus()))
 			citizen.setPlanStatus(r.getPlanStatus());
-		if(null != r.getGender() && ! "".equals(r.getGender()))
+		if (!"".equals(r.getGender()))
 			citizen.setGender(r.getGender());
+		if (null != r.getPlanStartDate())
+			citizen.setPlanStartDate(r.getPlanStartDate());
+		if (null != r.getPlanEndDate())
+			citizen.setPlanEndDate(r.getPlanEndDate());
 		
 		return this.dao.findAll(Example.of(citizen));
 	}

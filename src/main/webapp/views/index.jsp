@@ -9,15 +9,17 @@
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
 	rel="stylesheet">
-<title>ReportGenerator</title>
+<title>Report</title>
 </head>
-<body>
+<body class="bg-light">
 	<nav class="navbar navbar-expand-lg bg-dark">
 		<div class="container-fluid">
-			<a class="navbar-brand text-white" href="#">Report Generator</a>
+			<a class="navbar-brand text-white m-auto fw-bold" href="#">Insurance
+				Report Generator</a>
 		</div>
 	</nav>
-	<div class="container bg-light p-5 mt-5">
+	<div class="container p-5 mt-5"
+		style="background-color: rgb(235, 236, 237)">
 		<div class="row">
 			<div class="col">
 				<form:form class="row g-3" action="search" method="post"
@@ -57,13 +59,14 @@
 					</div>
 					<div class="col-md-4 mt-5 ">
 						<button type="submit" class="btn btn-primary">Search</button>
-						<button type="reset" class="btn btn-primary">Reset</button>
+						<a href="/" type="reset" class="btn btn-primary">Reset</a>
 					</div>
 				</form:form>
 			</div>
 		</div>
 	</div>
-	<div class="container bg-light p-2 mt-2">
+	<div class="container p-2 mt-2"
+		style="background-color: rgb(235, 236, 237)">
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -85,14 +88,19 @@
 						<td>${record.planStatus}</td>
 						<td>${record.planStartDate}</td>
 						<td>${record.planEndDate}</td>
-						<td>${record.benifitAmt}</td> 
+						<td>${record.benifitAmt}</td>
 					</tr>
 				</c:forEach>
-
+				<c:if test="${empty records}">
+					<tr>
+						<td colspan="7" class="text-center bg-secondary">--No Records Found--</td>
+					</tr>
+				</c:if>
 			</tbody>
 		</table>
 	</div>
-	<div class="container bg-light p-1 mt-2">
+	<div class="container p-3 mt-2"
+		style="background-color: rgb(235, 236, 237)">
 		<div class="row">
 			<div class="col-4 m-auto">
 				<button type="submit" class="btn btn-primary">PDF</button>

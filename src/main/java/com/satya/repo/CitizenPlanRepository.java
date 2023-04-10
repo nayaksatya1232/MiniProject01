@@ -12,9 +12,4 @@ public interface CitizenPlanRepository extends JpaRepository<CitizenPlan, Intege
 	public List<String> getPlans();
 	@Query("select distinct(planStatus) from CitizenPlan")
 	public List<String> getPlanStatus();
-//	public List<CitizenPlan> findByPlanName(String planName);
-//	public List<CitizenPlan> findByPlanStatus(String planStatus);
-//	public List<CitizenPlan> findByGender(String gender);
-//	public List<CitizenPlan> findByPlanStartDate(LocalDate date);
-//	public List<CitizenPlan> findByPlanEndDate(LocalDate date);
 }

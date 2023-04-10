@@ -26,7 +26,6 @@ public class ReportController {
 	}
 	@PostMapping("/search")
 	public String searchHandler(@ModelAttribute("search")SearchRequest request,Model model) {
-//		System.out.println(request);
 		List<CitizenPlan> list = this.reportService.search(request);
 		model.addAttribute("records",list);
 		init(model);
