@@ -19,6 +19,13 @@ import com.satya.service.ReportService;
 public class ReportController {
 	@Autowired
 	private ReportService reportService;
+	
+	@GetMapping("/pdf")
+	public void pdfHandler(HttpServletResponse response) throws Exception {
+		response.setContentType("application/pdf");
+		response.addHeader("Content-Disposition", "attachment;filename=Plans.pdf");
+		reportService.exportPdf(response);
+	}
 
 	@GetMapping("/excel")
 	public void excelHandler(HttpServletResponse response) throws Exception {

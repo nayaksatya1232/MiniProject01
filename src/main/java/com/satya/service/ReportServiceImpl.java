@@ -13,6 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import com.satya.entity.CitizenPlan;
 import com.satya.repo.CitizenPlanRepository;
 import com.satya.request.SearchRequest;
@@ -70,8 +77,17 @@ public class ReportServiceImpl implements ReportService {
 			row.createCell(0).setCellValue(plan.getCitizenId());
 			row.createCell(1).setCellValue(plan.getPlanName());
 			row.createCell(2).setCellValue(plan.getPlanStatus());
-			row.createCell(3).setCellValue(plan.getPlanStartDate());
-			row.createCell(4).setCellValue(plan.getPlanEndDate());
+
+			if (plan.getPlanStartDate() == null)
+				row.createCell(3).setCellValue("n/a");
+			else
+				row.createCell(3).setCellValue(plan.getPlanStartDate() + "");
+
+			if (plan.getPlanEndDate() == null)
+				row.createCell(4).setCellValue("n/a");
+			else
+				row.createCell(4).setCellValue(plan.getPlanEndDate() + "");
+
 			if (plan.getBenifitAmt() == null)
 				row.createCell(5).setCellValue("n/a");
 			else
@@ -85,6 +101,46 @@ public class ReportServiceImpl implements ReportService {
 		workbook.close();
 
 		return false;
+	}
+
+	@Override
+	public void exportPdf(HttpServletResponse response) throws Exception {
+		Document doc = new Document(PageSize.A4);
+		PdfWriter.getInstance(doc, response.getOutputStream());
+		doc.open();
+
+		Font fontTiltle = FontFactory.getFont(FontFactory.TIMES_ROMAN);
+		fontTiltle.setSize(20);
+
+		Paragraph paragraph = new Paragraph("--Plan Detatils--", fontTiltle);
+		paragraph.setAlignment(Paragraph.ALIGN_CENTER);
+		doc.add(paragraph);
+
+		PdfPTable table = new PdfPTable(6);
+		table.setWidthPercentage(100f);
+		table.setWidths(new int[] { 6, 6, 6, 6, 6, 6 });
+		table.setSpacingBefore(5);
+
+		table.addCell("Id");
+		table.addCell("PlanName");
+		table.addCell("PlanStatus");
+		table.addCell("StartDate");
+		table.addCell("EndDate");
+		table.addCell("Amount");
+
+		List<CitizenPlan> plans = dao.findAll();
+
+		for (CitizenPlan plan : plans) {
+			table.addCell(String.valueOf(plan.getCitizenId()));
+			table.addCell(plan.getPlanName());
+			table.addCell(plan.getPlanStatus());
+			table.addCell(plan.getPlanStartDate() + "");
+			table.addCell(plan.getPlanEndDate() + "");
+			table.addCell(String.valueOf(plan.getBenifitAmt()));
+		}
+
+		doc.add(table);
+		doc.close();
 	}
 
 }

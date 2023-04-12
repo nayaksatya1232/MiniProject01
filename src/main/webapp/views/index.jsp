@@ -103,7 +103,7 @@
 		style="background-color: rgb(235, 236, 237)">
 		<div class="row">
 			<div class="col-4 m-auto">
-				<a href="/" class="btn btn-primary">PDF</a>
+				<a href="/pdf" class="btn btn-primary">PDF</a>
 				<a href="/excel" class="btn btn-primary ml-2">EXCEL</a>
 			</div>
 		</div>
