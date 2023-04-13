@@ -1,33 +1,31 @@
 package com.satya.service;
 
+import java.io.File;
 import java.util.List;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfWriter;
 import com.satya.entity.CitizenPlan;
 import com.satya.repo.CitizenPlanRepository;
 import com.satya.request.SearchRequest;
+import com.satya.util.EmailUtils;
+import com.satya.util.ExcelGenerator;
+import com.satya.util.PdfGenerator;
 
 @Service
 public class ReportServiceImpl implements ReportService {
 	@Autowired
 	private CitizenPlanRepository dao;
+	@Autowired
+	private ExcelGenerator excelGen;
+	@Autowired
+	private PdfGenerator pdfGen;
+	@Autowired
+	private EmailUtils emailUtil;
 
 	@Override
 	public List<String> getPlans() {
@@ -59,88 +57,28 @@ public class ReportServiceImpl implements ReportService {
 	}
 
 	@Override
-	public boolean exportExcel(HttpServletResponse response) throws Exception {
-		Workbook workbook = new HSSFWorkbook();
-		Sheet sheet = workbook.createSheet("plans-data");
-		Row rowHeader = sheet.createRow(0);
-		rowHeader.createCell(0).setCellValue("Id");
-		rowHeader.createCell(1).setCellValue("PlanName");
-		rowHeader.createCell(2).setCellValue("Status");
-		rowHeader.createCell(3).setCellValue("Start Date");
-		rowHeader.createCell(4).setCellValue("End Date");
-		rowHeader.createCell(5).setCellValue("Benifit Amount");
-
+	public void exportExcel(HttpServletResponse response) throws Exception {
 		List<CitizenPlan> records = dao.findAll();
-		int index = 1;
-		for (CitizenPlan plan : records) {
-			Row row = sheet.createRow(index);
-			row.createCell(0).setCellValue(plan.getCitizenId());
-			row.createCell(1).setCellValue(plan.getPlanName());
-			row.createCell(2).setCellValue(plan.getPlanStatus());
-
-			if (plan.getPlanStartDate() == null)
-				row.createCell(3).setCellValue("n/a");
-			else
-				row.createCell(3).setCellValue(plan.getPlanStartDate() + "");
-
-			if (plan.getPlanEndDate() == null)
-				row.createCell(4).setCellValue("n/a");
-			else
-				row.createCell(4).setCellValue(plan.getPlanEndDate() + "");
-
-			if (plan.getBenifitAmt() == null)
-				row.createCell(5).setCellValue("n/a");
-			else
-				row.createCell(5).setCellValue(plan.getBenifitAmt());
-
-			index++;
-		}
-		ServletOutputStream outStream = response.getOutputStream();
-		workbook.write(outStream);
-		outStream.close();
-		workbook.close();
-
-		return false;
+		File file = new File("Plan.xls");
+		this.excelGen.generator(response, records,file);
+		String subject = "Citizen-Plan-Details";
+		String body = "<h1>Below the Excel File is attached</h1>";
+		String to = "nayaksatya1232@gmail.com";
+		this.emailUtil.sendMail(subject, body, to, file);
+		file.delete();
 	}
 
 	@Override
 	public void exportPdf(HttpServletResponse response) throws Exception {
-		Document doc = new Document(PageSize.A4);
-		PdfWriter.getInstance(doc, response.getOutputStream());
-		doc.open();
-
-		Font fontTiltle = FontFactory.getFont(FontFactory.TIMES_ROMAN);
-		fontTiltle.setSize(20);
-
-		Paragraph paragraph = new Paragraph("--Plan Detatils--", fontTiltle);
-		paragraph.setAlignment(Paragraph.ALIGN_CENTER);
-		doc.add(paragraph);
-
-		PdfPTable table = new PdfPTable(6);
-		table.setWidthPercentage(100f);
-		table.setWidths(new int[] { 6, 6, 6, 6, 6, 6 });
-		table.setSpacingBefore(5);
-
-		table.addCell("Id");
-		table.addCell("PlanName");
-		table.addCell("PlanStatus");
-		table.addCell("StartDate");
-		table.addCell("EndDate");
-		table.addCell("Amount");
-
 		List<CitizenPlan> plans = dao.findAll();
-
-		for (CitizenPlan plan : plans) {
-			table.addCell(String.valueOf(plan.getCitizenId()));
-			table.addCell(plan.getPlanName());
-			table.addCell(plan.getPlanStatus());
-			table.addCell(plan.getPlanStartDate() + "");
-			table.addCell(plan.getPlanEndDate() + "");
-			table.addCell(String.valueOf(plan.getBenifitAmt()));
-		}
-
-		doc.add(table);
-		doc.close();
+		File file = new File("Plan.pdf");
+		
+		this.pdfGen.generatePdf(response, plans,file);
+		String subject = "Citizen-Plan-Details";
+		String body = "<h1>Below the Excel File is attached</h1>";
+		String to = "nayaksatya1232@gmail.com";
+		this.emailUtil.sendMail(subject, body, to, file);
+		file.delete();
 	}
 
 }
